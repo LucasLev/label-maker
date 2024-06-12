@@ -1,5 +1,6 @@
 from itertools import batched
 from json import load as json_load
+from typing import Iterator, Literal
 
 from PIL import Image, ImageFont
 
@@ -10,15 +11,39 @@ with open("plan_2024.json") as f:
 
 
 def label_generator(
-    bg,
-    letter,
-    num_seats,
+    bg: Image.Image,
+    row_name: str,
+    num_seats: int,
     text_font,
     text_color,
     *,
-    txt_format="{letter}:{i}",
-    parity="all",
-):
+    txt_format: str = "{row_name}:{i}",
+    parity: Literal["odd", "even", "all"] = "all",
+) -> Iterator[Image.Image]:
+    """Generate labels for a row
+
+    Parameters
+    ----------
+    bg : Image.Image
+        The background image used for the labels
+    row_name : str
+        The name of the row
+    num_seats : int
+        The number of seats in the row
+    text_font : _type_
+        The font to be used for the text
+    text_color : _type_
+        The color of the text
+    txt_format : str, optional
+        The format string used for the labels, by default "{row_name}:{i}"
+    parity : Literal["odd", "even", "all"], optional
+        Flag to determine specific label generation (only odd, only even, or all), by default "all"
+
+    Yields
+    ------
+    Iterator[Image.Image]
+        An iterator of labels
+    """
     match parity:
         case "odd":
             start = 1
@@ -32,7 +57,7 @@ def label_generator(
 
     for i in range(start, num_seats + 1, step):
         yield create_label(
-            bg, txt_format.format(letter=letter, i=i), text_font, text_color
+            bg, txt_format.format(row_name=row_name, i=i), text_font, text_color
         )
 
 
